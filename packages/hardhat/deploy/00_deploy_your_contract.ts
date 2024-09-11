@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract } from "ethers";
+import { Contract, parseEther } from "ethers";
 
 // Update with your Batch number
 const BATCH_NUMBER = "1";
@@ -37,8 +37,34 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
 
   // Get the deployed contract to interact with it after deploying.
   const batchRegistry = await hre.ethers.getContract<Contract>("BatchRegistry", deployer);
-  console.log("\nBatchRegistry deployed to:", await batchRegistry.getAddress());
+  const batchRegistryAddress = await batchRegistry.getAddress();
+  console.log("\nBatchRegistry deployed to:", batchRegistryAddress);
   console.log("Remember to update the allow list!\n");
+
+  // Update batchRegistry storage variables.
+  const myAccount = "0xaa4C60b784E2b3E485035399bF1b1aBDeD66A60f";
+  await batchRegistry.updateAllowList([myAccount], [true]);
+  await batchRegistry.transferOwnership(myAccount);
+  console.log("Ownership transferred to: ", myAccount, "\n");
+
+  // Transfer some funds to batchRegistry.
+  const signer = await hre.ethers.getSigner(deployer);
+  await signer.sendTransaction({
+    to: batchRegistryAddress,
+    value: parseEther("1.0"),
+  });
+
+  // Deploy my CheckIn contract.
+  await deploy("CheckIn", {
+    from: deployer,
+    args: [batchRegistryAddress],
+    log: true,
+    autoMine: true,
+  });
+  const checkIn = await hre.ethers.getContract<Contract>("CheckIn", deployer);
+  console.log("CheckIn deployed to:", await checkIn.getAddress());
+  await checkIn.transferOwnership(myAccount);
+  console.log("Ownership transferred to: ", myAccount, "\n");
 
   // The GraduationNFT contract is deployed on the BatchRegistry constructor.
   const batchGraduationNFTAddress = await batchRegistry.batchGraduationNFT();
