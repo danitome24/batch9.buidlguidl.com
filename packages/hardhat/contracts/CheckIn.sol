@@ -10,7 +10,7 @@ interface IBatchRegistry {
 }
 
 contract CheckIn is Ownable {
-    IBatchRegistry batchRegistry;
+    IBatchRegistry public batchRegistry;
 
     constructor(address batchRegistryAddress) {
         batchRegistry = IBatchRegistry(batchRegistryAddress);

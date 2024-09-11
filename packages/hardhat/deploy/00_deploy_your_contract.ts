@@ -1,9 +1,9 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { Contract, parseEther } from "ethers";
+import { Contract } from "ethers";
 
 // Update with your Batch number
-const BATCH_NUMBER = "1";
+//const BATCH_NUMBER = "1";
 
 /**
  * Deploys a contract named "deployYourContract" using the deployer account and
@@ -25,7 +25,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   const { deployer } = await hre.getNamedAccounts();
   const { deploy } = hre.deployments;
 
-  await deploy("BatchRegistry", {
+  /*await deploy("BatchRegistry", {
     from: deployer,
     // Contract constructor arguments
     args: [deployer, BATCH_NUMBER],
@@ -42,7 +42,7 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   console.log("Remember to update the allow list!\n");
 
   // Update batchRegistry storage variables.
-  const myAccount = "0xaa4C60b784E2b3E485035399bF1b1aBDeD66A60f";
+  const myAccount = "0x97289b9C7AE16114D993057F81f99457224a59b3";
   await batchRegistry.updateAllowList([myAccount], [true]);
   await batchRegistry.transferOwnership(myAccount);
   console.log("Ownership transferred to: ", myAccount, "\n");
@@ -55,9 +55,13 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   });
 
   // Deploy my CheckIn contract.
+  */
+  const batchRegistry = await hre.ethers.getContractAt("BatchRegistry", "0x107d6F280a05f07B59039143CA21e3f917AAFA30");
+  const myAccount = "0xaa4C60b784E2b3E485035399bF1b1aBDeD66A60f";
   await deploy("CheckIn", {
     from: deployer,
-    args: [batchRegistryAddress],
+    //args: [batchRegistryAddress],
+    args: [await batchRegistry.getAddress()],
     log: true,
     autoMine: true,
   });
@@ -67,8 +71,8 @@ const deployYourContract: DeployFunction = async function (hre: HardhatRuntimeEn
   console.log("Ownership transferred to: ", myAccount, "\n");
 
   // The GraduationNFT contract is deployed on the BatchRegistry constructor.
-  const batchGraduationNFTAddress = await batchRegistry.batchGraduationNFT();
-  console.log("BatchGraduation NFT deployed to:", batchGraduationNFTAddress, "\n");
+  //const batchGraduationNFTAddress = await batchRegistry.batchGraduationNFT();
+  //console.log("BatchGraduation NFT deployed to:", batchGraduationNFTAddress, "\n");
 };
 
 export default deployYourContract;
